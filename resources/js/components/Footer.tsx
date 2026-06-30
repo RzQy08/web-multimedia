@@ -1,8 +1,11 @@
 import { motion } from "motion/react";
 import { Zap, Instagram, Youtube, Facebook, Linkedin, Twitter, ArrowRight, Mail, Phone, MapPin } from "lucide-react";
+import { getContent, ContentMap } from "../lib/parseContent";
 
 interface FooterProps {
   isDark: boolean;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
 
 const footerLinks = {
@@ -44,7 +47,16 @@ const achievements = [
   { value: "150+", label: "Klien Puas" },
 ];
 
-export function Footer({ isDark }: FooterProps) {
+export function Footer({ isDark, content = {} }: FooterProps) {
+  const logoText      = getContent(content, "logo_text", "LUMINA");
+  const tagline       = getContent(
+    content,
+    "tagline",
+    "Kami adalah mitra digital terpercaya untuk bisnis Anda. Dari desain web hingga strategi pemasaran digital — kami hadir untuk mendorong pertumbuhan bisnis Anda ke level berikutnya."
+  );
+  const copyrightText = getContent(content, "copyright_text", "© 2026 LUMINA Digital Agency. Seluruh hak cipta dilindungi.");
+  // Catatan: social_links dan footer_links dari database belum di-merge, masih statis untuk sekarang.
+
   const handleNavClick = (href: string) => {
     if (href === "#") return;
     const el = document.querySelector(href);
@@ -93,11 +105,11 @@ export function Footer({ isDark }: FooterProps) {
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform duration-200">
                 <Zap size={17} className="text-white" />
               </div>
-              <span className="text-white text-xl" style={{ fontWeight: 800, letterSpacing: "-0.03em" }}>LUMINA</span>
+              <span className="text-white text-xl" style={{ fontWeight: 800, letterSpacing: "-0.03em" }}>{logoText}</span>
             </a>
 
             <p className="text-gray-400 text-sm leading-relaxed mb-5 max-w-xs">
-              Kami adalah mitra digital terpercaya untuk bisnis Anda. Dari desain web hingga strategi pemasaran digital — kami hadir untuk mendorong pertumbuhan bisnis Anda ke level berikutnya.
+              {tagline}
             </p>
 
             {/* Contact info */}
@@ -185,7 +197,7 @@ export function Footer({ isDark }: FooterProps) {
         {/* Divider */}
         <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-600 text-xs">
-            © 2026 LUMINA Digital Agency. Seluruh hak cipta dilindungi.
+            {copyrightText}
           </p>
           <div className="flex items-center gap-4">
             {["Kebijakan Privasi", "Syarat & Ketentuan", "Sitemap"].map((item) => (

@@ -13,41 +13,13 @@ import {
   Linkedin,
   Youtube,
 } from "lucide-react";
+import { getContent, ContentMap } from "../lib/parseContent";
 
 interface KontakSectionProps {
   isDark: boolean;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
-
-const contactInfo = [
-  {
-    icon: Mail,
-    label: "Email",
-    value: "halo@lumina.co.id",
-    description: "Balas dalam 1x24 jam",
-    color: "from-cyan-500 to-blue-600",
-  },
-  {
-    icon: Phone,
-    label: "Telepon & WhatsApp",
-    value: "+62 812-3456-7890",
-    description: "Senin–Jumat, 09.00–18.00 WIB",
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    icon: MapPin,
-    label: "Kantor",
-    value: "Jl. Sudirman No. 88, Jakarta Selatan",
-    description: "Buka untuk konsultasi tatap muka",
-    color: "from-emerald-500 to-green-600",
-  },
-  {
-    icon: Clock,
-    label: "Jam Operasional",
-    value: "Senin – Jumat",
-    description: "09.00 – 18.00 WIB",
-    color: "from-amber-500 to-orange-600",
-  },
-];
 
 const socials = [
   { Icon: Instagram, label: "Instagram", href: "#", color: "hover:text-pink-400" },
@@ -65,7 +37,25 @@ const services = [
   "Maintenance & Support",
 ];
 
-export function KontakSection({ isDark }: KontakSectionProps) {
+export function KontakSection({ isDark, content = {} }: KontakSectionProps) {
+  const sectionTitle    = getContent(content, "section_title", "Hubungi Kami");
+  const sectionSubtitle = getContent(
+    content,
+    "section_subtitle",
+    "Ceritakan kebutuhan bisnis Anda. Tim kami siap membantu menemukan solusi digital terbaik — gratis dan tanpa kewajiban."
+  );
+  const email   = getContent(content, "email", "halo@lumina.co.id");
+  const phone   = getContent(content, "phone", "+62 812-3456-7890");
+  const address = getContent(content, "address", "Jl. Sudirman No. 88, Jakarta Selatan");
+
+  // contactInfo dibangun dari data database (email, phone, address) + icon statis
+  const contactInfoData = [
+    { icon: Mail, label: "Email", value: email, description: "Balas dalam 1x24 jam", color: "from-cyan-500 to-blue-600" },
+    { icon: Phone, label: "Telepon & WhatsApp", value: phone, description: "Senin–Jumat, 09.00–18.00 WIB", color: "from-violet-500 to-purple-600" },
+    { icon: MapPin, label: "Kantor", value: address, description: "Buka untuk konsultasi tatap muka", color: "from-emerald-500 to-green-600" },
+    { icon: Clock, label: "Jam Operasional", value: "Senin – Jumat", description: "09.00 – 18.00 WIB", color: "from-amber-500 to-orange-600" },
+  ];
+
   const [form, setForm] = useState({
     nama: "",
     email: "",
@@ -135,13 +125,13 @@ export function KontakSection({ isDark }: KontakSectionProps) {
             className={`mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
             style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)", fontWeight: 800, letterSpacing: "-0.03em" }}
           >
-            Hubungi Kami
+            {sectionTitle}
           </h2>
           <p
             className={`max-w-xl mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
             style={{ fontSize: "1.05rem" }}
           >
-            Ceritakan kebutuhan bisnis Anda. Tim kami siap membantu menemukan solusi digital terbaik — gratis dan tanpa kewajiban.
+            {sectionSubtitle}
           </p>
         </motion.div>
 
@@ -156,7 +146,7 @@ export function KontakSection({ isDark }: KontakSectionProps) {
           >
             {/* Info cards */}
             <div className="space-y-4">
-              {contactInfo.map((item, index) => {
+              {contactInfoData.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <motion.div

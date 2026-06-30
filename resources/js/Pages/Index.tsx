@@ -8,7 +8,7 @@ import { BlogSection } from "../components/BlogSection";
 import { KontakSection } from "../components/KontakSection";
 import { Footer } from "../components/Footer";
 import { ScrollToTop } from "../components/ScrollToTop";
-
+import { usePageData } from "../hooks/usePageData";
 
 export default function App() {
   const [isDark, setIsDark] = useState(() => {
@@ -28,27 +28,41 @@ export default function App() {
     localStorage.setItem("lumina-theme", isDark ? "dark" : "light");
   }, [isDark]);
 
-  const handleThemeToggle = () => setIsDark((v) => !v);
+  // ── Ambil semua section + konten dari database ─────────────────────────
+  // GET /api/public/pages/home
+  const { loading, getSection } = usePageData("home");
+
+  // Tiap getSection(key) mengembalikan { content: {...} } atau undefined
+  // kalau section belum ada di database / API belum siap.
+  // Komponen tetap aman karena masing-masing sudah punya nilai default
+  // sebagai fallback (lihat content = {} di setiap komponen).
+  const navbarContent   = getSection("navbar")?.content;
+  const heroContent     = getSection("hero")?.content;
+  const tentangContent  = getSection("tentang_kami")?.content;
+  const layananContent  = getSection("layanan")?.content;
+  const portfolioContent= getSection("portfolio")?.content;
+  const blogContent     = getSection("blog")?.content;
+  const kontakContent   = getSection("kontak")?.content;
+  const footerContent   = getSection("footer")?.content;
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-gray-950" : "bg-white"}`}>
+    <div className={isDark ? "dark" : ""}>
       <Navbar
         isDark={isDark}
-        onThemeToggle={handleThemeToggle}
+        onThemeToggle={() => setIsDark((v) => !v)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        content={navbarContent}
       />
 
-      <main>
-        <HeroSection isDark={isDark} />
-        <TentangKamiSection isDark={isDark} />
-        <LayananSection isDark={isDark} searchQuery={searchQuery} />
-        <PortfolioSection isDark={isDark} />
-        <BlogSection isDark={isDark} searchQuery={searchQuery} />
-        <KontakSection isDark={isDark} />
-      </main>
+      <HeroSection isDark={isDark} content={heroContent} />
+      <TentangKamiSection isDark={isDark} content={tentangContent} />
+      <LayananSection isDark={isDark} searchQuery={searchQuery} content={layananContent} />
+      <PortfolioSection isDark={isDark} content={portfolioContent} />
+      <BlogSection isDark={isDark} searchQuery={searchQuery} content={blogContent} />
+      <KontakSection isDark={isDark} content={kontakContent} />
+      <Footer isDark={isDark} content={footerContent} />
 
-      <Footer isDark={isDark} />
       <ScrollToTop />
     </div>
   );

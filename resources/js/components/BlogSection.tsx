@@ -2,10 +2,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Clock, Eye, ArrowRight, BookOpen, Tag, User } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { getContent, ContentMap } from "../lib/parseContent";
 
 interface BlogSectionProps {
   isDark: boolean;
   searchQuery: string;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
 
 const categories = ["Semua", "Web Design", "Digital Marketing", "SEO", "Mobile App", "Teknologi"];
@@ -91,7 +94,12 @@ const posts = [
   },
 ];
 
-export function BlogSection({ isDark, searchQuery }: BlogSectionProps) {
+export function BlogSection({ isDark, searchQuery, content = {} }: BlogSectionProps) {
+  const sectionTitle    = getContent(content, "section_title", "Blog & Artikel");
+  const sectionSubtitle = getContent(content, "section_subtitle", "Insight & Inspirasi");
+  // Catatan: data "posts" dari database belum di-merge karena tiap post punya banyak field
+  // (image, category, excerpt, dll). Untuk sekarang title & subtitle sudah dinamis.
+
   const [activeCategory, setActiveCategory] = useState("Semua");
 
   const filtered = posts.filter((p) => {
@@ -127,14 +135,14 @@ export function BlogSection({ isDark, searchQuery }: BlogSectionProps) {
             className={`inline-block text-sm tracking-widest uppercase mb-3 ${isDark ? "text-cyan-400" : "text-violet-600"}`}
             style={{ fontWeight: 600 }}
           >
-            Insight & Inspirasi
+            {sectionSubtitle}
           </span>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <h2
               className={`${isDark ? "text-white" : "text-gray-900"}`}
               style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 800, letterSpacing: "-0.03em" }}
             >
-              Blog & Artikel
+              {sectionTitle}
             </h2>
             <a
               href="#"

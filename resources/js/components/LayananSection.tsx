@@ -1,12 +1,15 @@
 import { motion } from "motion/react";
 import { Monitor, Smartphone, BarChart3, Search, MessageSquare, Settings, ArrowRight, CheckCircle2, Zap } from "lucide-react";
+import { getContent, ContentMap } from "../lib/parseContent";
 
 interface LayananSectionProps {
   isDark: boolean;
   searchQuery: string;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
 
-const layanan = [
+const DEFAULT_SERVICES = [
   {
     id: "desain-web",
     icon: Monitor,
@@ -93,7 +96,18 @@ const layanan = [
   },
 ];
 
-export function LayananSection({ isDark, searchQuery }: LayananSectionProps) {
+export function LayananSection({ isDark, searchQuery, content = {} }: LayananSectionProps) {
+  const sectionTitle    = getContent(content, "section_title", "Layanan Kami");
+  const sectionSubtitle = getContent(
+    content,
+    "section_subtitle",
+    "Solusi digital lengkap yang dirancang untuk mendorong pertumbuhan dan kesuksesan bisnis Anda."
+  );
+  // Catatan: services dari database tidak membawa komponen icon (icon hanya bisa disimpan sebagai string),
+  // jadi untuk sekarang tetap pakai DEFAULT_SERVICES yang sudah punya icon Lucide siap pakai.
+  // Kalau database punya data "services", field title/description bisa di-merge di sini nanti.
+  const layanan = DEFAULT_SERVICES;
+
   const filtered = layanan.filter(
     (l) =>
       !searchQuery ||
@@ -124,10 +138,10 @@ export function LayananSection({ isDark, searchQuery }: LayananSectionProps) {
               Apa yang Kami Tawarkan
             </span>
             <h2 className={`mb-3 ${isDark ? "text-white" : "text-gray-900"}`} style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)", fontWeight: 800, letterSpacing: "-0.03em" }}>
-              Layanan Kami
+              {sectionTitle}
             </h2>
             <p className={`max-w-xl ${isDark ? "text-gray-400" : "text-gray-500"}`} style={{ fontSize: "1.05rem" }}>
-              Solusi digital lengkap yang dirancang untuk mendorong pertumbuhan dan kesuksesan bisnis Anda.
+              {sectionSubtitle}
             </p>
           </div>
           <a

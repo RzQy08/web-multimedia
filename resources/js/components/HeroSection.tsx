@@ -2,44 +2,93 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Play, ArrowRight, ChevronDown, Pause, Globe2 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { getContent, ContentMap } from "../lib/parseContent";
+
+interface PreviewVideo {
+  id: number;
+  title: string;
+  duration: string;
+  thumbnail: string;
+  category: string;
+}
+
+interface StatItem {
+  value: string;
+  label: string;
+}
 
 interface HeroProps {
   isDark: boolean;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
 
-const previewVideos = [
+// ─── Nilai default ───────────────────────────────────────────────────────────
+// Dipakai sebagai fallback kalau data dari database belum ada/kosong,
+// supaya tampilan tidak rusak sebelum admin mengisi konten.
+
+const DEFAULT_PREVIEW_VIDEOS: PreviewVideo[] = [
   {
     id: 1,
     title: "Into the Deep",
     duration: "24:38",
-    thumbnail: "https://images.unsplash.com/photo-1545605114-7b82dad7b990?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHxvY2VhbiUyMHVuZGVyd2F0ZXIlMjBjb3JhbCUyMHJlZWZ8ZW58MXx8fHwxNzgxNDA1OTYxfDA&ixlib=rb-4.1.0&q=80&w=400",
+    thumbnail:
+      "https://images.unsplash.com/photo-1545605114-7b82dad7b990?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400",
     category: "Ocean",
   },
   {
     id: 2,
     title: "Serengeti 4K",
     duration: "18:14",
-    thumbnail: "https://images.unsplash.com/photo-1549366021-9f761d450615?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuYXR1cmUlMjBkb2N1bWVudGFyeSUyMHdpbGRsaWZlJTIwcGhvdG9ncmFwaHl8ZW58MXx8fHwxNzgxNDA1OTU3fDA&ixlib=rb-4.1.0&q=80&w=400",
+    thumbnail:
+      "https://images.unsplash.com/photo-1549366021-9f761d450615?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400",
     category: "Wildlife",
   },
   {
     id: 3,
     title: "Hubble's Cosmos",
     duration: "31:05",
-    thumbnail: "https://images.unsplash.com/photo-1447433553548-2fc162393482?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxzcGFjZSUyMGNvc21vcyUyMGdhbGF4eSUyMG5lYnVsYXxlbnwxfHx8fDE3ODE0MDU5NjJ8MA&ixlib=rb-4.1.0&q=80&w=400",
+    thumbnail:
+      "https://images.unsplash.com/photo-1447433553548-2fc162393482?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400",
     category: "Space",
   },
 ];
 
-export function HeroSection({ isDark }: HeroProps) {
+const DEFAULT_STATS: StatItem[] = [
+  { value: "500K+", label: "Stories Published" },
+  { value: "12M+", label: "Monthly Readers" },
+  { value: "150+", label: "Countries Reached" },
+];
+
+export function HeroSection({ isDark, content = {} }: HeroProps) {
   const [playingId, setPlayingId] = useState<number | null>(null);
+
+  // ─── Ambil data dari database, fallback ke default kalau kosong ───────────
+  const badgeText        = getContent(content, "badge_text", "Multimedia Storytelling");
+  const headline1        = getContent(content, "headline_1", "Explore the");
+  const headlineHighlight= getContent(content, "headline_highlight", "Universe");
+  const headline2        = getContent(content, "headline_2", "One Story at a Time");
+  const subtitle         = getContent(
+    content,
+    "subtitle",
+    "Stunning visuals and interactive stories spanning science, nature, history, and culture."
+  );
+  const backgroundImage  = getContent(
+    content,
+    "background_image",
+    "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
+  );
+  const ctaPrimaryText   = getContent(content, "cta_primary_text", "Start Exploring");
+  const ctaSecondaryText = getContent(content, "cta_secondary_text", "Watch Now");
+  const stats            = getContent<StatItem[]>(content, "stats", DEFAULT_STATS);
+  const previewVideos    = getContent<PreviewVideo[]>(content, "preview_videos", DEFAULT_PREVIEW_VIDEOS);
 
   return (
     <section id="top" className="relative min-h-screen flex flex-col overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
         <ImageWithFallback
-          src="https://images.unsplash.com/photo-1502134249126-9f3755a50d78?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGFjZSUyMGNvc21vcyUyMGdhbGF4eSUyMG5lYnVsYXxlbnwxfHx8fDE3ODE0MDU5NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+          src={backgroundImage}
           alt="Galaxy cosmos background"
           className="w-full h-full object-cover"
         />
@@ -57,7 +106,7 @@ export function HeroSection({ isDark }: HeroProps) {
         <div className="flex items-center gap-1.5">
           <Globe2 size={12} className="text-cyan-400" />
           <span className="text-[10px] text-white/40 tracking-[0.18em] uppercase font-medium">
-            Multimedia Storytelling
+            {badgeText}
           </span>
         </div>
       </motion.div>
@@ -82,13 +131,13 @@ export function HeroSection({ isDark }: HeroProps) {
                   letterSpacing: "-0.03em",
                 }}
               >
-                Explore the
+                {headline1}
                 <br />
                 <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                  Universe
+                  {headlineHighlight}
                 </span>
                 <br />
-                One Story at a Time
+                {headline2}
               </motion.h1>
 
               <motion.p
@@ -98,7 +147,7 @@ export function HeroSection({ isDark }: HeroProps) {
                 className="text-white/50 leading-relaxed max-w-sm"
                 style={{ fontSize: "0.93rem", fontWeight: 400 }}
               >
-                Stunning visuals and interactive stories spanning science, nature, history, and culture.
+                {subtitle}
               </motion.p>
             </div>
 
@@ -193,7 +242,7 @@ export function HeroSection({ isDark }: HeroProps) {
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5"
                 style={{ fontWeight: 600, fontSize: "0.875rem" }}
               >
-                Start Exploring
+                {ctaPrimaryText}
                 <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-200" />
               </a>
               <a
@@ -203,7 +252,7 @@ export function HeroSection({ isDark }: HeroProps) {
                 style={{ fontWeight: 600, fontSize: "0.875rem" }}
               >
                 <Play size={13} className="fill-current" />
-                Watch Now
+                {ctaSecondaryText}
               </a>
             </div>
 
@@ -212,11 +261,7 @@ export function HeroSection({ isDark }: HeroProps) {
 
             {/* Stats */}
             <div className="flex items-center gap-8 sm:gap-10">
-              {[
-                { value: "500K+", label: "Stories Published" },
-                { value: "12M+", label: "Monthly Readers" },
-                { value: "150+", label: "Countries Reached" },
-              ].map(({ value, label }, i) => (
+              {stats.map(({ value, label }) => (
                 <div key={label} className="flex flex-col items-center text-center">
                   <span
                     className="text-white"

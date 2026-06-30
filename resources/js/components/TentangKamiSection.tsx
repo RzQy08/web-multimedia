@@ -1,12 +1,15 @@
 import { motion } from "motion/react";
 import { Users, Award, Globe, TrendingUp, ArrowRight, CheckCircle2, Lightbulb, Heart, Shield } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { getContent, ContentMap } from "../lib/parseContent";
 
 interface TentangKamiSectionProps {
   isDark: boolean;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
 
-const stats = [
+const DEFAULT_STATS = [
   { value: "10+", label: "Tahun Pengalaman" },
   { value: "500+", label: "Proyek Selesai" },
   { value: "150+", label: "Klien Puas" },
@@ -40,14 +43,28 @@ const values = [
   },
 ];
 
-const achievements = [
+const DEFAULT_HIGHLIGHTS = [
   "Penghargaan Perusahaan Digital Terbaik 2023",
   "Bersertifikat ISO 9001 untuk Manajemen Mutu",
   "Partner resmi Google & Meta",
   "Top 10 Agensi Digital Indonesia",
 ];
 
-export function TentangKamiSection({ isDark }: TentangKamiSectionProps) {
+export function TentangKamiSection({ isDark, content = {} }: TentangKamiSectionProps) {
+  const sectionTitle = getContent(content, "section_title", "Tentang Kami");
+  const description  = getContent(
+    content,
+    "description",
+    "Sejak berdiri pada tahun 2014, LUMINA telah menjadi mitra terpercaya ratusan bisnis di seluruh Indonesia. Kami menggabungkan keahlian teknis, kreativitas desain, dan strategi pemasaran digital untuk menghasilkan solusi yang berdampak nyata."
+  );
+  const image       = getContent(
+    content,
+    "image",
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+  );
+  const highlights  = getContent<string[]>(content, "highlights", DEFAULT_HIGHLIGHTS);
+  const stats       = DEFAULT_STATS; // belum ada di fields_schema, tetap statis untuk sekarang
+
   return (
     <section
       id="tentang"
@@ -69,7 +86,7 @@ export function TentangKamiSection({ isDark }: TentangKamiSectionProps) {
             Siapa Kami
           </span>
           <h2 className={`mb-4 ${isDark ? "text-white" : "text-gray-900"}`} style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)", fontWeight: 800, letterSpacing: "-0.03em" }}>
-            Tentang Kami
+            {sectionTitle}
           </h2>
           <p className={`max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`} style={{ fontSize: "1.05rem" }}>
             Kami adalah tim profesional yang berdedikasi dalam menghadirkan solusi digital inovatif untuk membantu bisnis Anda berkembang di era modern.
@@ -88,7 +105,7 @@ export function TentangKamiSection({ isDark }: TentangKamiSectionProps) {
           >
             <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+                src={image}
                 alt="Tim kami bekerja bersama"
                 className="w-full h-full object-cover"
               />
@@ -143,17 +160,14 @@ export function TentangKamiSection({ isDark }: TentangKamiSectionProps) {
               <h3 className={`mb-3 ${isDark ? "text-white" : "text-gray-900"}`} style={{ fontSize: "clamp(1.3rem, 2.5vw, 1.75rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>
                 Membangun Masa Depan Digital Bersama Anda
               </h3>
-              <p className={`leading-relaxed mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                Sejak berdiri pada tahun 2014, LUMINA telah menjadi mitra terpercaya ratusan bisnis di seluruh Indonesia. Kami menggabungkan keahlian teknis, kreativitas desain, dan strategi pemasaran digital untuk menghasilkan solusi yang berdampak nyata.
-              </p>
               <p className={`leading-relaxed ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                Tim kami terdiri dari para profesional berpengalaman yang berkomitmen untuk memberikan hasil terbaik — mulai dari desain web, pengembangan aplikasi, hingga strategi pemasaran digital yang komprehensif.
+                {description}
               </p>
             </div>
 
             {/* Achievements list */}
             <div className="space-y-3">
-              {achievements.map((item, i) => (
+              {highlights.map((item, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: 20 }}

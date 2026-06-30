@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Sun, Moon, Menu, X, Zap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { getContent, ContentMap } from "../lib/parseContent";
 
 interface NavbarProps {
   isDark: boolean;
   onThemeToggle: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  /** Data dari database (section_contents). Kosongkan untuk pakai nilai default. */
+  content?: ContentMap;
 }
 
 const layananItems = [
@@ -26,7 +29,10 @@ const navLinks = [
   { label: "Hubungi Kami", href: "#kontak" },
 ];
 
-export function Navbar({ isDark, onThemeToggle, searchQuery, onSearchChange }: NavbarProps) {
+export function Navbar({ isDark, onThemeToggle, searchQuery, onSearchChange, content = {} }: NavbarProps) {
+  const logoText = getContent(content, "logo_text", "LUMINA");
+  // Catatan: logo_image dan menu_items belum di-merge — logo teks sudah dinamis dari database.
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -78,7 +84,7 @@ export function Navbar({ isDark, onThemeToggle, searchQuery, onSearchChange }: N
                 }`}
                 style={{ fontWeight: 700, letterSpacing: "-0.02em" }}
               >
-                LUMINA
+                {logoText}
               </span>
             </a>
 
